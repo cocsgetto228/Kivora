@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import type { AdminChannelRow, AdminOverview, AdminUserRow } from "../lib/api.ts";
 import { describeError } from "../lib/api.ts";
-import { useSession, useSessionState } from "../state/useSession.ts";
+import { useSession } from "../state/useSession.ts";
 import { useT } from "../i18n/useT.ts";
 import { formatBytes, formatDuration, formatShortDate, locale } from "../i18n/index.ts";
 import { Avatar } from "./Avatar.tsx";
@@ -13,7 +13,6 @@ import {
   IconCheck,
   IconDatabase,
   IconLock,
-  IconShield,
   IconUsers,
 } from "./Icons.tsx";
 
@@ -34,7 +33,6 @@ import type { AdminTab } from "../lib/session.ts";
  */
 export function AdminPanel({ tab, query }: { tab: AdminTab; query: string }) {
   const session = useSession();
-  const state = useSessionState();
   const { t } = useT();
 
   const [overview, setOverview] = useState<AdminOverview | null>(null);
