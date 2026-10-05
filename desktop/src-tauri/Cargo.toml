@@ -1,0 +1,33 @@
+[package]
+name = "kivora-desktop"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+description = "Kivora messenger desktop shell"
+license = "Apache-2.0"
+
+[lib]
+name = "kivora_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# The OS keychain: Credential Manager on Windows, Secret Service / kwallet on Linux.
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
+getrandom = "0.2"
+zeroize = { version = "1", features = ["zeroize_derive"] }
+
+[profile.release]
+# A messenger has no reason to be a large binary. These four lines are worth
+# roughly half the size of the shipped executable; see docs/LIGHTWEIGHT.md.
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

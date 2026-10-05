@@ -1,0 +1,17 @@
+{
+  "name": "kivora",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Kivora — self-hosted end-to-end encrypted messenger",
+  "license": "Apache-2.0",
+  "type": "module",
+  "workspaces": ["packages/*", "web", "desktop"],
+  "scripts": {
+    "brand": "node scripts/brand.mjs",
+    "test": "npm --prefix packages/kivora-crypto test && npm --prefix web run typecheck",
+    "e2e": "node web/e2e/smoke.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.0"
+  }
+}

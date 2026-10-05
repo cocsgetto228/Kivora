@@ -1,0 +1,64 @@
+# /etc/systemd/system/kivora.service
+#
+# The hardening below is not decoration: Kivora needs one writable directory and
+# one socket, so nearly everything else can be taken away. It runs fine like
+# this — if it stops working after an edit, the edit is the problem.
+
+[Unit]
+Description=Kivora messenger server
+Documentation=https://github.com/kivora-im/kivora
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kivora
+Group=kivora
+ExecStart=/usr/local/bin/kivorad
+Restart=on-failure
+RestartSec=3s
+
+Environment=KIVORA_ADDR=127.0.0.1:8080
+Environment=KIVORA_DATA_DIR=/var/lib/kivora
+Environment=KIVORA_TRUST_PROXY=true
+# Environment=KIVORA_REGISTRATION=invite
+# Environment=KIVORA_INVITE_CODES=change-me
+# Environment=KIVORA_CORS_ORIGINS=https://chat.example.org
+
+# --- filesystem ---
+StateDirectory=kivora
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/kivora
+
+# --- privileges ---
+NoNewPrivileges=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RemoveIPC=true
+
+# --- syscalls and sockets ---
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @obsolete
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+# --- resources ---
+LimitNOFILE=65535
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

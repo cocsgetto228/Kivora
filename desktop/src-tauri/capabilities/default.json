@@ -1,0 +1,11 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The window may talk to the Kivora core and nothing else. There is no filesystem, shell, process or arbitrary-HTTP permission here on purpose: an attacker who lands script in the web layer should gain nothing the web version would not already give them.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:event:default"
+  ]
+}

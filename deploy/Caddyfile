@@ -1,0 +1,22 @@
+# Caddy handles the certificate; Kivora handles the messenger.
+#
+#   caddy run --config deploy/Caddyfile
+#
+# Remember to set on the Kivora side:
+#   KIVORA_TRUST_PROXY=true
+#   KIVORA_CORS_ORIGINS=https://chat.example.org
+
+chat.example.org {
+	encode zstd gzip
+
+	# The WebSocket upgrade needs no special handling in Caddy: reverse_proxy
+	# passes it through, and Caddy does not impose a short read timeout.
+	reverse_proxy 127.0.0.1:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+}

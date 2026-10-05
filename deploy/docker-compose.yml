@@ -1,0 +1,45 @@
+# Run from the repository root:
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Kivora itself does not terminate TLS. Either put Caddy in front (see the
+# commented service below) or point your existing reverse proxy at :8080.
+
+services:
+  kivora:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - kivora-data:/data
+    environment:
+      # Registration is open by default; close it once your people are in.
+      KIVORA_REGISTRATION: "open"
+      # KIVORA_INVITE_CODES: "code-one,code-two"
+      KIVORA_TRUST_PROXY: "true"
+      KIVORA_CORS_ORIGINS: "https://chat.example.org"
+      KIVORA_SYNC: "always"
+      KIVORA_ARGON2_MEMORY_KIB: "65536"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   ports: ["80:80", "443:443"]
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy-data:/data
+  #     - caddy-config:/config
+
+volumes:
+  kivora-data:
+  # caddy-data:
+  # caddy-config:

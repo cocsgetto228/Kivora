@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  server:
+    name: Server (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Formatting
+        run: test -z "$(gofmt -l server/)"
+      - name: Vet
+        run: cd server && go vet ./...
+      - name: Tests with the race detector
+        run: cd server && go test -race ./...
+      - name: No third-party dependencies
+        # The zero-dependency rule is a security property, so let CI enforce it
+        # rather than trusting everyone to remember.
+        run: |
+          if grep -qE '^\s*require' server/go.mod; then
+            echo "server/go.mod gained a dependency — see docs/ARCHITECTURE.md" >&2
+            exit 1
+          fi
+
+  crypto:
+    name: Crypto (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: cd packages/kivora-crypto && npm install --no-audit --no-fund
+      - name: Test vectors and protocol properties
+        run: cd packages/kivora-crypto && npm test
+      - run: cd packages/kivora-crypto && npx tsc --noEmit
+
+  web:
+    name: Web client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm --prefix web install --no-audit --no-fund
+      - run: npm --prefix web run build
+
+  release:
+    name: Cross-compile
+    runs-on: ubuntu-latest
+    needs: [server, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: make -f build.mk release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kivorad-binaries
+          path: release/

@@ -1,0 +1,35 @@
+# build output
+/server/kivorad
+/server/kivorad.exe
+/server/internal/webui/dist/*
+!/server/internal/webui/dist/index.html
+/web/dist
+/desktop/src-tauri/target
+/desktop/src-tauri/gen
+/dist
+/release
+
+# dependencies
+node_modules/
+
+# runtime data — this is where the messages live, never commit it
+/data
+*.db
+*.log
+meta.log
+blobs.dat
+secret.key
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# convenience binaries, rebuilt with `make release`
+/prebuilt/*
+!/prebuilt/README.md
+
+# generated brand assets (rebuild with `npm run brand`)
+# kept in git so a fresh clone builds without the image toolchain:
+# /web/public/brand
